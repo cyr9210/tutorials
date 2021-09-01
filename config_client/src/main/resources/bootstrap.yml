@@ -1,0 +1,23 @@
+spring:
+  application:
+    name: sample
+  profiles:
+    active: dev
+
+management:
+  endpoints:
+    web:
+      base-path:
+      exposure:
+        include: ['refresh']
+
+server:
+  port: 8081
+---
+spring:
+  config:
+    activate:
+      on-profile: dev
+  cloud:
+    config:
+      uri: http://localhost:8888
