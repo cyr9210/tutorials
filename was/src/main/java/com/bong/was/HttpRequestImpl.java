@@ -6,14 +6,17 @@ import lombok.Getter;
 @Getter
 public class HttpRequestImpl implements HttpRequest {
 
+  public static final String INDEX_PATH = "index.html";
   private final Map<String, String> headers;
+  private final Map<String, String> parameters;
   private final HttpMethod httpMethod;
-  private final String path;
+  private final String fileName;
 
-  public HttpRequestImpl(Map<String, String> headers, String methodName, String path) {
+  public HttpRequestImpl(Map<String, String> headers, Map<String, String> parameters, String methodName, String fileName) {
     this.headers = headers;
+    this.parameters = parameters;
     this.httpMethod = HttpMethod.findMethod(methodName);
-    this.path = path;
+    this.fileName = fileName;
   }
 
   @Override
@@ -26,14 +29,16 @@ public class HttpRequestImpl implements HttpRequest {
     return this.httpMethod;
   }
 
-  @Override
-  public String getPath() {
-    return path;
+  public String getFileName() {
+    if (fileName.endsWith("/")) {
+      return fileName + INDEX_PATH;
+    }
+    return fileName;
   }
 
   @Override
   public String getExtension() {
-    int extensionSeparator = path.lastIndexOf(".");
+    int extensionSeparator = fileName.lastIndexOf(".");
     if (extensionSeparator < 0) {
       if (httpMethod.isGet()) {
         return "java";
@@ -41,6 +46,11 @@ public class HttpRequestImpl implements HttpRequest {
       return "html";
     }
     int extensionStartIndex = extensionSeparator + 1;
-    return path.substring(extensionStartIndex);
+    return fileName.substring(extensionStartIndex);
+  }
+
+  @Override
+  public String getParameter(String parameterName) {
+    return parameters.get(parameterName);
   }
 }

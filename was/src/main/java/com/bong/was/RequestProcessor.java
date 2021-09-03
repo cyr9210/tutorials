@@ -10,10 +10,8 @@ import java.io.OutputStreamWriter;
 import java.io.Reader;
 import java.io.Writer;
 import java.net.Socket;
-import java.net.URLConnection;
-import java.nio.file.Files;
 import java.util.Arrays;
-import java.util.Date;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -44,7 +42,6 @@ public class RequestProcessor implements Runnable {
 
     @Override
     public void run() {
-        // for security checks
         String root = rootDirectory.getPath();
         try {
             OutputStream raw = new BufferedOutputStream(connection.getOutputStream());
@@ -63,65 +60,21 @@ public class RequestProcessor implements Runnable {
             String[] tokens = requestLine.split("\\s+");
             String method = tokens[0];
             String path = tokens[1];
-            HttpRequestImpl httpRequest = new HttpRequestImpl(headers, method, path);
-
-            HttpResponseImpl httpResponse = new HttpResponseImpl();
-            SimpleServletImpl servlet = new SimpleServletImpl();
-            servlet.service(httpRequest, httpResponse);
-
-            String version = "";
-            if ("GET".equals(method)) {
-                String fileName = path;
-                if (fileName.endsWith("/")) {
-                    fileName += indexFileName;
-                }
-                String contentType =
-                        URLConnection.getFileNameMap().getContentTypeFor(fileName);
-                if (tokens.length > 2) {
-                    version = tokens[2];
-                }
-                File theFile = new File(rootDirectory, fileName.substring(1, fileName.length()));
-                if (theFile.canRead()
-// Don't let clients outside the document root
-                        && theFile.getCanonicalPath().startsWith(root)) {
-                    byte[] theData = Files.readAllBytes(theFile.toPath());
-                    if (version.startsWith("HTTP/")) { // send a MIME header
-                        sendHeader(out, "HTTP/1.0 200 OK", contentType, theData.length);
-                    }
-                    // send the file; it may be an image or other binary data
-                    // so use the underlying output stream
-                    // instead of the writer
-                    raw.write(theData);
-                    raw.flush();
-                } else {
-                    // can't find the file
-                    String body = new StringBuilder("<HTML>\r\n")
-                            .append("<HEAD><TITLE>File Not Found</TITLE>\r\n")
-                            .append("</HEAD>\r\n")
-                            .append("<BODY>")
-                            .append("<H1>HTTP Error 404: File Not Found</H1>\r\n")
-                            .append("</BODY></HTML>\r\n")
-                            .toString();
-                    if (version.startsWith("HTTP/")) { // send a MIME header
-                        sendHeader(out, "HTTP/1.0 404 File Not Found", "text/html; charset=utf-8", body.length());
-                    }
-                    out.write(body);
-                    out.flush();
-                }
-            } else {
-                // method does not equal "GET"
-                String body = new StringBuilder("<HTML>\r\n").append("<HEAD><TITLE>Not Implemented</TITLE>\r\n").append("</HEAD>\r\n")
-                        .append("<BODY>")
-                        .append("<H1>HTTP Error 501: Not Implemented</H1>\r\n")
-                        .append("</BODY></HTML>\r\n").toString();
-                if (version.startsWith("HTTP/")) { // send a MIME header
-                    sendHeader(out, "HTTP/1.0 501 Not Implemented",
-                            "text/html; charset=utf-8", body.length());
-                }
-                out.write(body);
-                out.flush();
+            String[] split = path.split("\\?");
+            String fileName = split[0];
+            Map<String, String> parameters = new HashMap<>();
+            if (split.length > 1){
+                parameters = Arrays.stream(split[1].split("&"))
+                    .map(parameter -> parameter.split("="))
+                    .collect(Collectors.toMap(array -> array[0], array -> array[1]));
             }
-        } catch (IOException ex) {
+
+            HttpRequestImpl httpRequest = new HttpRequestImpl(headers, parameters, method, fileName);
+            HttpResponseImpl httpResponse = new HttpResponseImpl(raw, out, root, httpRequest);
+            SimpleServletImpl servlet = new SimpleServletImpl(root);
+
+            servlet.service(httpRequest, httpResponse);
+        } catch (Exception ex) {
             logger.log(Level.WARNING, "Error talking to " + connection.getRemoteSocketAddress(), ex);
         } finally {
             try {
@@ -141,14 +94,4 @@ public class RequestProcessor implements Runnable {
         return request;
     }
 
-    private void sendHeader(Writer out, String responseCode, String contentType, int length)
-            throws IOException {
-        out.write(responseCode + "\r\n");
-        Date now = new Date();
-        out.write("Date: " + now + "\r\n");
-        out.write("Server: JHTTP 2.0\r\n");
-        out.write("Content-length: " + length + "\r\n");
-        out.write("Content-type: " + contentType + "\r\n\r\n");
-        out.flush();
-    }
 }

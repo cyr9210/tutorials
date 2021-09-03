@@ -1,7 +1,10 @@
 package com.bong.was;
 
-public interface HttpResponse {
+import java.io.IOException;
 
-  String getBody();
+public interface HttpResponse {
+  void writeErrorPage(String error) throws IOException;
+
+  void writeBody(String body) throws IOException;
 
 }
