@@ -7,7 +7,7 @@ spring:
 management:
   endpoints:
     web:
-      base-path:
+      base-path: /actuator
       exposure:
         include: ['refresh']
 
