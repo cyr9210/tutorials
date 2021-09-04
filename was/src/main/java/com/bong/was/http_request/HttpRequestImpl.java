@@ -1,12 +1,12 @@
-package com.bong.was;
+package com.bong.was.http_request;
 
 import java.util.Map;
-import lombok.Getter;
 
-@Getter
 public class HttpRequestImpl implements HttpRequest {
 
   public static final String INDEX_PATH = "index.html";
+  public static final String HOST_KEY = "host";
+  public static final String DEFAULT_HOST = "a.com";
   private final Map<String, String> headers;
   private final Map<String, String> parameters;
   private final HttpMethod httpMethod;
@@ -38,12 +38,10 @@ public class HttpRequestImpl implements HttpRequest {
 
   @Override
   public String getExtension() {
+    String fileName = getFileName();
     int extensionSeparator = fileName.lastIndexOf(".");
     if (extensionSeparator < 0) {
-      if (httpMethod.isGet()) {
-        return "java";
-      }
-      return "html";
+      return "";
     }
     int extensionStartIndex = extensionSeparator + 1;
     return fileName.substring(extensionStartIndex);
@@ -52,5 +50,13 @@ public class HttpRequestImpl implements HttpRequest {
   @Override
   public String getParameter(String parameterName) {
     return parameters.get(parameterName);
+  }
+
+  @Override
+  public String getHostHeader() {
+    if (!headers.containsKey(HOST_KEY)) {
+      return DEFAULT_HOST;
+    }
+    return getHeader(HOST_KEY);
   }
 }

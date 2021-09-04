@@ -1,7 +1,21 @@
-###
-GET http://localhost:80/Hello?name=choi
+### Hello
+GET http://localhost:8080/Hello?name=choi
 Host: a.com
 
+### Time
+GET http://localhost:8080/Time
 
-###
-GET http://localhost/Time
+### index
+GET http://localhost:8080/
+
+### 404
+GET http://localhost:8080/asdf.html
+
+### 403
+GET http://localhost:8080/../asdf
+
+### 403 exe
+GET http://localhost:8080/index.exe
+
+### 500
+GET http://localhost:8080/asdf

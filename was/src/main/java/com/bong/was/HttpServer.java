@@ -1,6 +1,7 @@
 package com.bong.was;
 
 
+import com.bong.was.util.PropertiesUtil;
 import java.io.File;
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -40,8 +41,8 @@ public class HttpServer {
         // set the port to listen on
         int port;
         try {
-            port = Integer.parseInt(args[0]);
-            if (port < 0 || port > 65535) port = 80;
+            port = PropertiesUtil.getPort();
+            if (port <= 0 || port > 65535) port = 80;
         } catch (RuntimeException ex) {
             port = 80;
         }

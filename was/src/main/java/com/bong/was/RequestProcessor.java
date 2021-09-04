@@ -1,5 +1,10 @@
 package com.bong.was;
 
+import com.bong.was.http_request.HttpRequestImpl;
+import com.bong.was.http_response.HttpResponseImpl;
+import com.bong.was.properties.Properties.HostInfo;
+import com.bong.was.servlet.SimpleServletImpl;
+import com.bong.was.util.PropertiesUtil;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -18,9 +23,11 @@ import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 public class RequestProcessor implements Runnable {
+
     private final static Logger logger = Logger.getLogger(RequestProcessor.class.getCanonicalName());
+    private static final String HOST = "host";
     private File rootDirectory;
-    private String indexFileName = "index.html";
+    private String indexFileName;
     private Socket connection;
 
     public RequestProcessor(File rootDirectory, String indexFileName, Socket connection) {
@@ -69,10 +76,13 @@ public class RequestProcessor implements Runnable {
                     .collect(Collectors.toMap(array -> array[0], array -> array[1]));
             }
 
-            HttpRequestImpl httpRequest = new HttpRequestImpl(headers, parameters, method, fileName);
-            HttpResponseImpl httpResponse = new HttpResponseImpl(raw, out, root, httpRequest);
-            SimpleServletImpl servlet = new SimpleServletImpl(root);
 
+            HttpRequestImpl httpRequest = new HttpRequestImpl(headers, parameters, method, fileName);
+            String host = httpRequest.getHostHeader();
+            HostInfo hostInfo = PropertiesUtil.getHostInfo(host);
+
+            HttpResponseImpl httpResponse = new HttpResponseImpl(raw, out, root, httpRequest, hostInfo.getPageInfo());
+            SimpleServletImpl servlet = new SimpleServletImpl(root, hostInfo);
             servlet.service(httpRequest, httpResponse);
         } catch (Exception ex) {
             logger.log(Level.WARNING, "Error talking to " + connection.getRemoteSocketAddress(), ex);

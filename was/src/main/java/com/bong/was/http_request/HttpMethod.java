@@ -1,4 +1,4 @@
-package com.bong.was;
+package com.bong.was.http_request;
 
 import java.util.Arrays;
 

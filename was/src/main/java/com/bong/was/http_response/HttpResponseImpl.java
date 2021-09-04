@@ -1,5 +1,7 @@
-package com.bong.was;
+package com.bong.was.http_response;
 
+import com.bong.was.http_request.HttpRequest;
+import com.bong.was.properties.Properties.PageInfo;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.Writer;
@@ -12,34 +14,20 @@ import java.util.Date;
 public class HttpResponseImpl implements HttpResponse{
 
   public static final String LINE_SEPARATOR = "\r\n";
-  private static final int BUFFER_SIZE = 1_024 * 1_024;
   private final OutputStream stream;
   private final Writer writer;
   private final HttpRequest request;
   private final String root;
+  private final PageInfo pageInfo;
 
-  public HttpResponseImpl(OutputStream stream, Writer writer, String root, HttpRequest request ) {
+  public HttpResponseImpl(OutputStream stream, Writer writer, String root, HttpRequest request,
+      PageInfo pageInfo) {
     this.stream = stream;
     this.writer = writer;
     this.root = root;
     this.request = request;
+    this.pageInfo = pageInfo;
   }
-
-//  @Override
-//  public void writePage(String path) throws IOException {
-//    Path file = Paths.get(root, path.substring(1));
-//    if (Files.isReadable(file)) {
-//      String contentType = URLConnection.getFileNameMap().getContentTypeFor(path);
-//      byte[] theData = Files.readAllBytes(file);
-//      sendHeader(writer, "HTTP/1.0 200 OK", contentType, theData.length);
-//      stream.write(theData);
-//    } else {
-//      byte[] bytes = getFileBytes(root, "/errors/404.html");
-//      sendHeader(writer, "HTTP/1.0 404 File Not Found", "text/html; charset=utf-8", bytes.length);
-//      stream.write(bytes);
-//    }
-//    stream.flush();
-//  }
 
   private byte[] getFileBytes(String root, String path) throws IOException {
     Path notFoundPath = Paths.get(root, path);
@@ -57,9 +45,9 @@ public class HttpResponseImpl implements HttpResponse{
   }
 
   @Override
-  public void writeErrorPage(String error) throws IOException {
-    byte[] bytes = getFileBytes(root, "/errors/" + error + ".html");
-    sendHeader(writer, "HTTP/1.1 403 forbidden", "text/html; charset=utf-8", bytes.length);
+  public void writeErrorPage(HttpError error) throws IOException {
+    byte[] bytes = getFileBytes(root, "/errors/" + error.getErrorPage(pageInfo));
+    sendHeader(writer, "HTTP/1.1 " + error.getStatusCode(), "text/html; charset=utf-8", bytes.length);
     stream.write(bytes);
     stream.flush();
   }
@@ -73,6 +61,21 @@ public class HttpResponseImpl implements HttpResponse{
     sendHeader(writer, "HTTP/1.1 200 OK", contentType, body.length());
     writer.write(body);
     writer.flush();
+  }
+
+  @Override
+  public void writePage(String fileName) throws IOException {
+    Path file = Paths.get(root, fileName.substring(1));
+    if (Files.isReadable(file)) {
+      String contentType = URLConnection.getFileNameMap().getContentTypeFor(fileName);
+      byte[] theData = Files.readAllBytes(file);
+      sendHeader(writer, "HTTP/1.0 200 OK", contentType, theData.length);
+      stream.write(theData);
+    } else {
+      writeErrorPage(HttpError.NOT_FOUND);
+      return;
+    }
+    stream.flush();
   }
 
 }

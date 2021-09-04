@@ -1,0 +1,24 @@
+{
+  "port" : "8080",
+  "hostInfos" : [{
+    "host" : "a.com",
+    "name" : "a",
+    "packagePath" : "com.bong.was.servlet",
+    "pageInfo" : {
+      "index" : "index.html",
+      "notFound" : "404.html",
+      "forbidden" : "403.html",
+      "serverError" : "500.html"
+    }
+  }, {
+    "host" : "b.com",
+    "name" : "b",
+    "packagePath" : "com.bong.was.bservlet",
+    "pageInfo" : {
+      "index" : "index.html",
+      "notFound" : "404.html",
+      "forbidden" : "403.html",
+      "serverError" : "500.html"
+    }
+  }]
+}

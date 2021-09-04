@@ -1,4 +1,4 @@
-package com.bong.was;
+package com.bong.was.http_request;
 
 public interface HttpRequest {
 
@@ -7,5 +7,6 @@ public interface HttpRequest {
   String getFileName();
   String getExtension();
   String getParameter(String parameterNmae);
+  String getHostHeader();
 
 }
