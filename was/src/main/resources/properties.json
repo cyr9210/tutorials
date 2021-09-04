@@ -16,9 +16,9 @@
     "packagePath" : "com.bong.was.bservlet",
     "pageInfo" : {
       "index" : "index.html",
-      "notFound" : "404.html",
-      "forbidden" : "403.html",
-      "serverError" : "500.html"
+      "notFound" : "notFound.html",
+      "forbidden" : "forbidden.html",
+      "serverError" : "serverError.html"
     }
   }]
 }

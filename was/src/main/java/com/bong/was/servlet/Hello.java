@@ -6,12 +6,6 @@ import java.io.IOException;
 
 public class Hello implements SimpleServlet {
 
-  private final String root;
-
-  public Hello(String root) {
-    this.root = root;
-  }
-
   @Override
   public void service(HttpRequest request, HttpResponse response) throws IOException {
     StringBuilder builder = new StringBuilder();

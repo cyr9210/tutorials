@@ -7,15 +7,20 @@ GET http://localhost:8080/Time
 
 ### index
 GET http://localhost:8080/
+Host: b.com
 
 ### 404
 GET http://localhost:8080/asdf.html
+Host: b.com
 
 ### 403
 GET http://localhost:8080/../asdf
+Host: b.com
 
 ### 403 exe
 GET http://localhost:8080/index.exe
+Host: b.com
 
 ### 500
 GET http://localhost:8080/asdf
+Host: b.com

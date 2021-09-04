@@ -5,7 +5,7 @@ import java.util.Map;
 public class HttpRequestImpl implements HttpRequest {
 
   public static final String INDEX_PATH = "index.html";
-  public static final String HOST_KEY = "host";
+  public static final String HOST_KEY = "Host";
   public static final String DEFAULT_HOST = "a.com";
   private final Map<String, String> headers;
   private final Map<String, String> parameters;

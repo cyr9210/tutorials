@@ -61,7 +61,7 @@ public class RequestProcessor implements Runnable {
             Map<String, String> headers = Arrays.stream(requestElements)
                 .filter(element -> element.contains(":"))
                 .map(element -> element.split(":"))
-                .collect(Collectors.toMap(array -> array[0], array -> array[1]));
+                .collect(Collectors.toMap(array -> array[0].trim(), array -> array[1].trim()));
 
             String requestLine = requestElements[0];
             String[] tokens = requestLine.split("\\s+");
@@ -81,8 +81,9 @@ public class RequestProcessor implements Runnable {
             String host = httpRequest.getHostHeader();
             HostInfo hostInfo = PropertiesUtil.getHostInfo(host);
 
-            HttpResponseImpl httpResponse = new HttpResponseImpl(raw, out, root, httpRequest, hostInfo.getPageInfo());
-            SimpleServletImpl servlet = new SimpleServletImpl(root, hostInfo);
+            String hostRoot = root + "/" + hostInfo.getName();
+            HttpResponseImpl httpResponse = new HttpResponseImpl(raw, out, hostRoot, httpRequest, hostInfo.getPageInfo());
+            SimpleServletImpl servlet = new SimpleServletImpl(hostInfo);
             servlet.service(httpRequest, httpResponse);
         } catch (Exception ex) {
             logger.log(Level.WARNING, "Error talking to " + connection.getRemoteSocketAddress(), ex);

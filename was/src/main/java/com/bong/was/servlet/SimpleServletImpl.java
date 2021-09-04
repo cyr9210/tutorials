@@ -5,18 +5,15 @@ import com.bong.was.http_response.HttpError;
 import com.bong.was.http_response.HttpResponse;
 import com.bong.was.properties.Properties.HostInfo;
 import java.io.IOException;
-import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 
 public class SimpleServletImpl implements SimpleServlet {
 
   private static final String UPPER_PATH = "../";
 
-  private final String root;
   private final HostInfo hostInfo;
 
-  public SimpleServletImpl(String root, HostInfo hostInfo) {
-    this.root = root;
+  public SimpleServletImpl(HostInfo hostInfo) {
     this.hostInfo = hostInfo;
   }
 
@@ -36,8 +33,7 @@ public class SimpleServletImpl implements SimpleServlet {
     try {
       String url = path.substring(1);
       Class<?> aClass = Class.forName(hostInfo.getPackagePath() + "." + url);
-      Constructor<?> constructor = aClass.getConstructor(String.class);
-      Object targetServlet = constructor.newInstance(root);
+      Object targetServlet = aClass.newInstance();
       Method service = aClass.getDeclaredMethod("service", HttpRequest.class, HttpResponse.class);
       service.invoke(targetServlet, request, response);
     } catch (Exception e) {
