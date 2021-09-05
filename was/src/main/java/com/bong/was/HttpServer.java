@@ -32,8 +32,11 @@ public class HttpServer {
     public static void main(String[] args) {
         File docroot;
         try {
-            String resource = HttpServer.class.getResource("/templates").getFile();
-            docroot = new File(resource);
+            String resource = ClassLoader.getSystemClassLoader().getResource("templates").getPath();
+            logger.info("resource:{}", resource);
+            String absolutePath = new File("").getAbsolutePath();
+            logger.info("path:{}", absolutePath);
+            docroot = new File(absolutePath + "/classes/templates");
         } catch (ArrayIndexOutOfBoundsException ex) {
             logger.debug("Usage: java JHTTP docroot port");
             return;
