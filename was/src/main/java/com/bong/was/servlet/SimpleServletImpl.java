@@ -6,8 +6,12 @@ import com.bong.was.http_response.HttpResponse;
 import com.bong.was.properties.Properties.HostInfo;
 import java.io.IOException;
 import java.lang.reflect.Method;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class SimpleServletImpl implements SimpleServlet {
+
+  private static Logger logger = LoggerFactory.getLogger(SimpleServlet.class);
 
   private static final String UPPER_PATH = "../";
 
@@ -37,6 +41,7 @@ public class SimpleServletImpl implements SimpleServlet {
       Method service = aClass.getDeclaredMethod("service", HttpRequest.class, HttpResponse.class);
       service.invoke(targetServlet, request, response);
     } catch (Exception e) {
+      logger.debug(e.getMessage(), e);
       response.writeErrorPage(HttpError.SERVER_ERROR);
     }
   }

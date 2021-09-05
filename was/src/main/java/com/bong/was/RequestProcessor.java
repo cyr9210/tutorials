@@ -18,14 +18,13 @@ import java.net.Socket;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.stream.Collectors;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class RequestProcessor implements Runnable {
 
-    private final static Logger logger = Logger.getLogger(RequestProcessor.class.getCanonicalName());
-    private static final String HOST = "host";
+    private static Logger logger = LoggerFactory.getLogger(RequestProcessor.class);
     private File rootDirectory;
     private String indexFileName;
     private Socket connection;
@@ -86,7 +85,7 @@ public class RequestProcessor implements Runnable {
             SimpleServletImpl servlet = new SimpleServletImpl(hostInfo);
             servlet.service(httpRequest, httpResponse);
         } catch (Exception ex) {
-            logger.log(Level.WARNING, "Error talking to " + connection.getRemoteSocketAddress(), ex);
+            logger.error("Error talking to " + connection.getRemoteSocketAddress(), ex);
         } finally {
             try {
                 connection.close();

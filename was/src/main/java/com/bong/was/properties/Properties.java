@@ -19,7 +19,7 @@ public class Properties {
   public HostInfo getHostInfo(String host) {
     return hostInfos.stream()
         .filter(info -> info.getHost().equals(host))
-        .findAny().orElseThrow(() -> new IllegalArgumentException());
+        .findAny().orElse(hostInfos.get(0));
   }
 
   public static class HostInfo {

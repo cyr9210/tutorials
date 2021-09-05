@@ -8,14 +8,14 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Created by cybaek on 15. 5. 22..
  */
 public class HttpServer {
-    private static final Logger logger = Logger.getLogger(HttpServer.class.getCanonicalName());
+    private static Logger logger = LoggerFactory.getLogger(RequestProcessor.class);
     private static final int NUM_THREADS = 50;
     private static final String INDEX_FILE = "index.html";
     private final File rootDirectory;
@@ -35,7 +35,7 @@ public class HttpServer {
             String resource = HttpServer.class.getResource("/templates").getFile();
             docroot = new File(resource);
         } catch (ArrayIndexOutOfBoundsException ex) {
-            System.out.println("Usage: java JHTTP docroot port");
+            logger.debug("Usage: java JHTTP docroot port");
             return;
         }
         // set the port to listen on
@@ -50,7 +50,7 @@ public class HttpServer {
             HttpServer webserver = new HttpServer(docroot, port);
             webserver.start();
         } catch (IOException ex) {
-            logger.log(Level.SEVERE, "Server could not start", ex);
+            logger.debug("Server could not start", ex);
         }
     }
 
@@ -65,7 +65,7 @@ public class HttpServer {
                     Runnable r = new RequestProcessor(rootDirectory, INDEX_FILE, request);
                     pool.submit(r);
                 } catch (IOException ex) {
-                    logger.log(Level.WARNING, "Error accepting connection", ex);
+                    logger.debug("Error accepting connection", ex);
                 }
             }
         }
