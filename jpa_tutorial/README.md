@@ -1,4 +1,4 @@
 # JPA Tutorial
 
 ## Test
-- [QuickPerf](/memo/quick-perf.md)
+- [QuickPerf](memo/quick-perf.md)
