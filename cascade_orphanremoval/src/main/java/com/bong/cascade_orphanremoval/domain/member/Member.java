@@ -1,17 +1,12 @@
 package com.bong.cascade_orphanremoval.domain.member;
 
-import com.bong.cascade_orphanremoval.domain.team.Team;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
 import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.NaturalId;
+
+import javax.persistence.*;
 
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -19,17 +14,20 @@ import lombok.Setter;
 public class Member {
 
   @Id
-  @GeneratedValue
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
   @Setter
   @Column(name = "name", length = 50)
   private String name;
 
-  @Setter
-  @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "team_id")
-  private Team team;
+//  @Setter
+//  @ManyToOne(fetch = FetchType.LAZY)
+//  @JoinColumn(name = "team_id")
+//  private Team team;
+
+  @NaturalId
+  private Long uniqueId;
 
   public Member(String name) {
     this.name = name;
@@ -38,4 +36,11 @@ public class Member {
   public Member(Long id) {
     this.id = id;
   }
+
+  public Member(String name, Long uniqueId) {
+    this.name = name;
+//    this.team = team;
+    this.uniqueId = uniqueId;
+  }
+
 }
